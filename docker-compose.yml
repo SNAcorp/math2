@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  game:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rps-game
+    restart: unless-stopped
+    volumes:
+      - ./app:/app
+#    ports:
+#      - "80:80"
+    expose:
+      - "80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wine.rule=Host(`1xbet.sna.lol`)"
+      - "traefik.http.routers.wine.entrypoints=websecure"
+      - "traefik.http.routers.wine.tls.certresolver=myresolver"
+      - "traefik.http.routers.wine.priority=10"
+    networks:
+      - traefik_network
+
+networks:
+  traefik_network:
+    external: true

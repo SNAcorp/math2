@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель управления игрой{% endblock %}
+{% block header %}Панель управления{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Системные уведомления -->
+    <div id="notification" class="hidden rounded-md p-4 transition-all duration-300" role="alert">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <!-- Иконка будет добавлена динамически -->
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium"></h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Панель быстрого управления -->
+    <div class="rounded-lg bg-white shadow">
+        <div class="divide-y divide-gray-200">
+            <!-- Заголовок панели -->
+            <div class="px-4 py-5 sm:px-6">
+                <h2 class="text-lg font-medium text-gray-900">Управление игрой</h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Основные функции управления игровым процессом
+                </p>
+            </div>
+
+            <!-- Кнопки управления -->
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <button onclick="startGame()"
+                            id="start-game"
+                            class="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Начать игру
+                    </button>
+
+                    <button onclick="startBetting()"
+                            id="start-betting"
+                            class="inline-flex items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Открыть ставки
+                    </button>
+
+                    <button onclick="stopBetting()"
+                            id="stop-betting"
+                            class="inline-flex items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+                        </svg>
+                        Закрыть ставки
+                    </button>
+
+                    <button onclick="showResults()"
+                            id="show-results"
+                            class="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        Показать результаты
+                    </button>
+                    <button onclick="reloadData()"
+                            id="reload"
+                            class="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Обновить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Информационные панели -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <!-- Коэффициенты -->
+        <div class="rounded-lg bg-white shadow">
+            <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-base font-semibold leading-6 text-gray-900">Текущие коэффициенты</h2>
+                <div class="mt-6 grid grid-cols-2 gap-6">
+                    <div class="overflow-hidden rounded-lg bg-gray-50 px-4 py-5 text-center ring-1 ring-inset ring-gray-200">
+                        <dt class="truncate text-sm font-medium text-gray-600">Игрок 1</dt>
+                        <dd class="mt-2 text-3xl font-semibold tracking-tight text-indigo-600" id="coef-player1">0</dd>
+                    </div>
+                    <div class="overflow-hidden rounded-lg bg-gray-50 px-4 py-5 text-center ring-1 ring-inset ring-gray-200">
+                        <dt class="truncate text-sm font-medium text-gray-600">Игрок 2</dt>
+                        <dd class="mt-2 text-3xl font-semibold tracking-tight text-indigo-600" id="coef-player2">0</dd>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика ставок -->
+        <div class="rounded-lg bg-white shadow">
+            <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-base font-semibold leading-6 text-gray-900">Статистика ставок</h2>
+                <div class="mt-6 grid grid-cols-2 gap-6">
+                    <div class="overflow-hidden rounded-lg bg-gray-50 px-4 py-5 text-center ring-1 ring-inset ring-gray-200">
+                        <dt class="truncate text-sm font-medium text-gray-600">Общий пул ставок</dt>
+                        <dd class="mt-2 text-3xl font-semibold tracking-tight text-green-600" id="total-pool">0</dd>
+                    </div>
+                    <div class="overflow-hidden rounded-lg bg-gray-50 px-4 py-5 text-center ring-1 ring-inset ring-gray-200">
+                        <dt class="truncate text-sm font-medium text-gray-600">Количество ставок</dt>
+                        <dd class="mt-2 text-3xl font-semibold tracking-tight text-green-600" id="total-bets">0</dd>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- История матчей -->
+    <div class="rounded-lg bg-white shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <h2 class="text-base font-semibold leading-6 text-gray-900">История матчей</h2>
+            <div class="mt-6 flow-root">
+                <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                            <div class="divide-y divide-gray-200" id="match-history">
+                                <!-- История матчей будет добавляться динамически -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица зрителей -->
+    <div class="rounded-lg bg-white shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <h2 class="text-base font-semibold leading-6 text-gray-900">Рейтинг зрителей</h2>
+            <div class="mt-6 flow-root">
+                <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-300">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Место</th>
+                                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">ID зрителя</th>
+                                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Баланс</th>
+                                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Прибыль/Убыток</th>
+                                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Текущие ставки</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white" id="spectators-table">
+                                    <!-- Данные таблицы будут добавляться динамически -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    const ws = new WebSocket(`ws://${window.location.host}/ws/admin`);
+    let gameStarted = false;
+    let bettingEnabled = false;
+
+    // Функция для показа уведомлений
+    function showNotification(message, type) {
+        const notification = document.getElementById('notification');
+        const title = notification.querySelector('h3');
+        const iconContainer = notification.querySelector('.flex-shrink-0');
+
+        let bgColor, textColor, icon;
+        switch(type) {
+            case 'success':
+                bgColor = 'bg-green-50';
+                textColor = 'text-green-800';
+                icon = `<svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>`;
+                break;
+            case 'error':
+                bgColor = 'bg-red-50';
+                textColor = 'text-red-800';
+                icon = `<svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>`;
+                break;
+            case 'warning':
+                bgColor = 'bg-yellow-50';
+                textColor = 'text-yellow-800';
+                icon = `<svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>`;
+                break;
+        }
+
+        notification.className = `${bgColor} rounded-md p-4 transition-all duration-300`;
+        iconContainer.innerHTML = icon;
+        title.className = `text-sm font-medium ${textColor}`;
+        title.textContent = message;
+        notification.classList.remove('hidden');
+
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 3000);
+    }
+
+    // Функции управления игрой
+    function startGame() {
+        if (!gameStarted) {
+            ws.send(JSON.stringify({
+                type: 'admin_command',
+                command: 'start_game'
+            }));
+            showNotification('Игра успешно запущена', 'success');
+            gameStarted = true;
+            document.getElementById('start-game').disabled = true;
+            document.getElementById('start-game').classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    function startBetting() {
+        if (!bettingEnabled) {
+            ws.send(JSON.stringify({
+                type: 'admin_command',
+                command: 'start_betting'
+            }));
+            showNotification('Прием ставок открыт', 'success');
+            bettingEnabled = true;
+            toggleBettingButtons(true);
+        }
+    }
+
+    function stopBetting() {
+        if (bettingEnabled) {
+            ws.send(JSON.stringify({
+                type: 'admin_command',
+                command: 'stop_betting'
+            }));
+            showNotification('Прием ставок закрыт', 'warning');
+            bettingEnabled = false;
+            toggleBettingButtons(false);
+        }
+    }
+
+    function showResults() {
+        ws.send(JSON.stringify({
+            type: 'admin_command',
+            command: 'show_results'
+        }));
+        showNotification('Результаты опубликованы', 'success');
+    }
+
+    function reloadData() {
+        ws.send(JSON.stringify({
+            type: 'admin_command',
+            command: 'lol'
+        }));
+        showNotification('Результаты обновлены', 'success');
+    }
+
+    function toggleBettingButtons(betting) {
+        const startBettingBtn = document.getElementById('start-betting');
+        const stopBettingBtn = document.getElementById('stop-betting');
+
+        startBettingBtn.disabled = betting;
+        stopBettingBtn.disabled = !betting;
+
+        if (betting) {
+            startBettingBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            stopBettingBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            startBettingBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            stopBettingBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    // Функции обновления данных
+    function updateMatchHistory(matches) {
+        const historyDiv = document.getElementById('match-history');
+        historyDiv.innerHTML = matches.map((match, index) => `
+            <div class="p-4 hover:bg-gray-50 transition duration-150">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-medium text-gray-900">Матч ${index + 1}</h3>
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        match.winner === 'tie' ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800'
+                    }">
+                        ${match.winner === 'tie' ? 'Ничья' : `Победитель: ${match.winner}`}
+                    </span>
+                </div>
+                <dl class="mt-2 grid grid-cols-2 gap-4">
+                    <div class="flex flex-col">
+                        <dt class="text-xs text-gray-500">Игрок 1</dt>
+                        <dd class="text-sm font-medium text-gray-900">${match.player1_choice}</dd>
+                    </div>
+                    <div class="flex flex-col">
+                        <dt class="text-xs text-gray-500">Игрок 2</dt>
+                        <dd class="text-sm font-medium text-gray-900">${match.player2_choice}</dd>
+                    </div>
+                </dl>
+            </div>
+        `).join('');
+    }
+
+    function updateSpectatorsTable(spectators) {
+        const tbody = document.getElementById('spectators-table');
+        tbody.innerHTML = '';
+
+        const sortedSpectators = Object.entries(spectators)
+            .sort(([, a], [, b]) => b.balance - a.balance);
+
+        sortedSpectators.forEach(([id, data], index) => {
+            const profit = data.balance - 5000;
+            const profitClass = profit >= 0 ? 'text-green-600' : 'text-red-600';
+
+            const row = document.createElement('tr');
+            row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+            row.innerHTML = `
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                    ${index + 1}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    ${id}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                    ${data.balance.toLocaleString()}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm ${profitClass}">
+                    ${profit >= 0 ? '+' : ''}${profit.toLocaleString()}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    ${Object.entries(data.current_bets).map(([player, amount]) =>
+                        `<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 mr-1">
+                            ${player}: ${amount.toLocaleString()}
+                        </span>`
+                    ).join('') || 'Нет ставок'}
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Обработка WebSocket сообщений
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'update') {
+            // Обновление коэффициентов
+            document.getElementById('coef-player1').textContent = data.coefficients.player1.toFixed(2);
+            document.getElementById('coef-player2').textContent = data.coefficients.player2.toFixed(2);
+
+            // Обновление общей статистики
+            document.getElementById('total-pool').textContent = data.total_pool.toLocaleString();
+            document.getElementById('total-bets').textContent =
+                Object.values(data.spectator_bets)
+                    .reduce((total, spectator) =>
+                        total + Object.keys(spectator.current_bets).length, 0)
+                    .toLocaleString();
+
+            // Обновление истории матчей и таблицы зрителей
+            updateMatchHistory(data.match_results);
+            updateSpectatorsTable(data.spectator_bets);
+
+            // Обновление состояния игры
+            gameStarted = data.game_started;
+            bettingEnabled = data.betting_round;
+
+            // Обновление состояния кнопок
+            document.getElementById('start-game').disabled = gameStarted;
+            toggleBettingButtons(bettingEnabled);
+        }
+    };
+
+    // Обработка ошибок соединения
+    ws.onerror = function(error) {
+        showNotification('Ошибка подключения к серверу', 'error');
+    };
+
+    // Обработка закрытия соединения
+    ws.onclose = function() {
+        showNotification('Соединение с сервером потеряно', 'error');
+
+        // Отключаем все элементы управления
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.disabled = true;
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+        });
+
+        // Пытаемся переподключиться через 5 секунд
+        setTimeout(() => {
+            showNotification('Попытка переподключения...', 'warning');
+            const ws = new WebSocket(`ws://${window.location.host}/ws/admin`);
+        }, 5000);
+    };
+</script>
+{% endblock %}
+{% endblock %}

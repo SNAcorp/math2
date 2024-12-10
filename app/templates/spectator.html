@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block title %}Ставки на игру{% endblock %}
+{% block header %}Ставки на игру{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Статус и уведомления -->
+    <div id="notification" class="rounded-md p-4 transition-all duration-300 ease-in-out" style="display: none;" role="alert">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <!-- Иконка будет добавляться динамически -->
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основная информация -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <!-- Баланс -->
+        <div class="overflow-hidden rounded-lg bg-white shadow transition duration-200 hover:shadow-md">
+            <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-base font-semibold leading-6 text-gray-900">Ваш баланс</h2>
+                <div class="mt-4">
+                    <div class="text-3xl font-bold tracking-tight text-indigo-600" id="balance">5000</div>
+                    <p class="mt-1 text-sm text-gray-500">доступно для ставок</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Коэффициенты -->
+        <div class="overflow-hidden rounded-lg bg-white shadow transition duration-200 hover:shadow-md">
+            <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-base font-semibold leading-6 text-gray-900">Текущие коэффициенты</h2>
+                <dl class="mt-4 space-y-3">
+                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                        <dt class="text-sm font-medium text-gray-600">Игрок 1</dt>
+                        <dd class="text-lg font-semibold text-indigo-600" id="coef-player1">0</dd>
+                    </div>
+                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                        <dt class="text-sm font-medium text-gray-600">Игрок 2</dt>
+                        <dd class="text-lg font-semibold text-indigo-600" id="coef-player2">0</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Область ставок -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <!-- Ставка на Игрока 1 -->
+        <div class="overflow-hidden rounded-lg bg-white shadow transition duration-200 hover:shadow-md">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-semibold leading-6 text-gray-900">Ставка на Игрока 1</h3>
+                    <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                        Активно
+                    </span>
+                </div>
+                <form class="mt-4 space-y-4" onsubmit="placeBet('player1', event)">
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span class="text-gray-500 sm:text-sm">₽</span>
+                        </div>
+                        <input type="number"
+                               id="bet-player1"
+                               min="1"
+                               placeholder="Введите сумму ставки"
+                               class="block w-full rounded-md border border-gray-300 pl-7 pr-12 py-2 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <button type="submit"
+                            class="flex w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">
+                        Сделать ставку
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Ставка на Игрока 2 -->
+        <div class="overflow-hidden rounded-lg bg-white shadow transition duration-200 hover:shadow-md">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-semibold leading-6 text-gray-900">Ставка на Игрока 2</h3>
+                    <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                        Активно
+                    </span>
+                </div>
+                <form class="mt-4 space-y-4" onsubmit="placeBet('player2', event)">
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span class="text-gray-500 sm:text-sm">₽</span>
+                        </div>
+                        <input type="number"
+                               id="bet-player2"
+                               min="1"
+                               placeholder="Введите сумму ставки"
+                               class="block w-full rounded-md border border-gray-300 pl-7 pr-12 py-2 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <button type="submit"
+                            class="flex w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">
+                        Сделать ставку
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- История ставок -->
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <h2 class="text-base font-semibold leading-6 text-gray-900">История ставок и результатов</h2>
+            <div class="mt-6 flow-root">
+                <div class="overflow-hidden">
+                    <div class="space-y-4" id="history">
+                        <!-- История будет добавляться динамически -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    const spectatorId = 'spectator_' + Math.random().toString(36).substr(2, 9);
+    const ws = new WebSocket(`ws://${window.location.host}/ws/spectator/${spectatorId}`);
+    let currentBalance = 5000;
+    let bettingEnabled = false;
+
+    function showNotification(message, type) {
+        const notification = document.getElementById('notification');
+        const messageEl = notification.querySelector('p');
+        const iconContainer = notification.querySelector('.flex-shrink-0');
+
+        // Настройка стилей в зависимости от типа уведомления
+        let styles = '';
+        let icon = '';
+
+        switch(type) {
+            case 'alert-success':
+                styles = 'bg-green-50 text-green-800';
+                icon = `<svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>`;
+                break;
+            case 'alert-error':
+                styles = 'bg-red-50 text-red-800';
+                icon = `<svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>`;
+                break;
+            case 'alert-warning':
+                styles = 'bg-yellow-50 text-yellow-800';
+                icon = `<svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>`;
+                break;
+        }
+
+        notification.className = `rounded-md p-4 ${styles}`;
+        iconContainer.innerHTML = icon;
+        messageEl.textContent = message;
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    function addHistoryRecord(text, type = '') {
+        const historyDiv = document.getElementById('history');
+        const record = document.createElement('div');
+
+        let borderColor = '';
+        switch(type) {
+            case 'success':
+                borderColor = 'border-green-500';
+                break;
+            case 'error':
+                borderColor = 'border-red-500';
+                break;
+            case 'info':
+                borderColor = 'border-indigo-500';
+                break;
+            default:
+                borderColor = 'border-gray-200';
+        }
+
+        record.className = `relative rounded-lg bg-white px-4 py-3 border-l-4 ${borderColor} shadow-sm transition duration-200 hover:shadow`;
+        record.innerHTML = `
+            <div class="flex justify-between">
+                <p class="text-sm text-gray-700">${text}</p>
+                <span class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</span>
+            </div>
+        `;
+
+        historyDiv.insertBefore(record, historyDiv.firstChild);
+    }
+
+    function updateBettingStatus(enabled) {
+        bettingEnabled = enabled;
+        const buttons = document.querySelectorAll('button[type="submit"]');
+        const statusBadges = document.querySelectorAll('.rounded-full');
+
+        buttons.forEach(button => {
+            button.disabled = !enabled;
+        });
+
+        statusBadges.forEach(badge => {
+            if (enabled) {
+                badge.className = 'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800';
+                badge.textContent = 'Активно';
+            } else {
+                badge.className = 'inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800';
+                badge.textContent = 'Закрыто';
+            }
+        });
+
+        if (enabled) {
+            showNotification('Прием ставок открыт', 'alert-success');
+        } else {
+            showNotification('Прием ставок закрыт', 'alert-warning');
+        }
+    }
+
+    function placeBet(player, event) {
+        event.preventDefault();
+
+        if (!bettingEnabled) {
+            showNotification('В данный момент ставки закрыты', 'alert-warning');
+            return;
+        }
+
+        const inputElement = document.getElementById(`bet-${player}`);
+        const amount = parseInt(inputElement.value);
+
+        if (isNaN(amount) || amount <= 0) {
+            showNotification('Введите корректную сумму ставки', 'alert-error');
+            return;
+        }
+
+        if (amount > currentBalance) {
+            showNotification('Недостаточно средств для ставки', 'alert-error');
+            return;
+        }
+
+        ws.send(JSON.stringify({
+            type: 'bet',
+            player: player,
+            amount: amount
+        }));
+
+        inputElement.value = '';
+    }
+
+    // Обработка WebSocket сообщений
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+
+        switch(data.type) {
+            case 'initial_state':
+                // Обработка начального состояния при подключении
+                currentBalance = data.balance;
+                document.getElementById('balance').textContent = currentBalance.toLocaleString();
+
+                // Обновляем коэффициенты
+                document.getElementById('coef-player1').textContent = data.coefficients.player1.toFixed(2);
+                document.getElementById('coef-player2').textContent = data.coefficients.player2.toFixed(2);
+
+                // Устанавливаем статус приёма ставок
+                updateBettingStatus(data.betting_enabled);
+
+                // Добавляем приветственное сообщение в историю
+                addHistoryRecord('Добро пожаловать! Вы подключились к системе ставок', 'info');
+                break;
+
+            case 'coefficients_update':
+                // Плавное обновление коэффициентов с анимацией
+                const coef1 = document.getElementById('coef-player1');
+                const coef2 = document.getElementById('coef-player2');
+
+                coef1.classList.add('transition-all', 'duration-300');
+                coef2.classList.add('transition-all', 'duration-300');
+
+                coef1.textContent = data.coefficients.player1.toFixed(2);
+                coef2.textContent = data.coefficients.player2.toFixed(2);
+
+                // Добавляем эффект подсветки при обновлении
+                [coef1, coef2].forEach(el => {
+                    el.classList.add('text-indigo-800');
+                    setTimeout(() => el.classList.remove('text-indigo-800'), 300);
+                });
+                break;
+
+            case 'betting_status':
+                // Обновление статуса приёма ставок
+                updateBettingStatus(data.enabled);
+                break;
+
+            case 'bet_accepted':
+                // Обработка принятой ставки
+                currentBalance = data.balance;
+                // Анимация обновления баланса
+                const balanceEl = document.getElementById('balance');
+                balanceEl.classList.add('transition-all', 'duration-300');
+                balanceEl.textContent = currentBalance.toLocaleString();
+
+                // Добавляем запись в историю
+                addHistoryRecord(
+                    `Ставка принята: ${data.amount.toLocaleString()} на ${
+                        data.player === 'player1' ? 'Игрока 1' : 'Игрока 2'
+                    }`,
+                    'success'
+                );
+
+                // Показываем уведомление
+                showNotification('Ставка успешно размещена', 'alert-success');
+                break;
+
+            case 'balance_update':
+                // Обработка обновления баланса (выигрыш/проигрыш)
+                const oldBalance = currentBalance;
+                currentBalance = data.balance;
+                const profit = currentBalance - oldBalance;
+
+                // Анимация обновления баланса
+                const balanceElement = document.getElementById('balance');
+                balanceElement.classList.add('transition-all', 'duration-500');
+                balanceElement.textContent = currentBalance.toLocaleString();
+
+                if (profit > 0) {
+                    // Добавляем запись о выигрыше
+                    addHistoryRecord(
+                        `Поздравляем! Вы выиграли ${profit.toLocaleString()} монет`,
+                        'success'
+                    );
+                    showNotification(`Выигрыш: +${profit.toLocaleString()}`, 'alert-success');
+                } else if (profit < 0) {
+                    // Добавляем запись о проигрыше
+                    addHistoryRecord(
+                        `Вы проиграли ${Math.abs(profit).toLocaleString()} монет`,
+                        'error'
+                    );
+                    showNotification(`Проигрыш: ${profit.toLocaleString()}`, 'alert-error');
+                }
+                break;
+
+            case 'result':
+                // Обработка результатов матча
+                addHistoryRecord(`Результат матча: ${data.result}`, 'info');
+                break;
+        }
+    };
+
+    // Обработка ошибок соединения
+    ws.onerror = function(error) {
+        showNotification('Ошибка соединения с сервером', 'alert-error');
+        // Отключаем все элементы управления
+        updateBettingStatus(false);
+        addHistoryRecord('Произошла ошибка соединения с сервером', 'error');
+    };
+
+    // Обработка закрытия соединения
+    ws.onclose = function() {
+        showNotification('Соединение с сервером потеряно', 'alert-error');
+        // Отключаем все элементы управления
+        updateBettingStatus(false);
+        addHistoryRecord('Соединение с сервером было потеряно', 'error');
+
+        // Пытаемся переподключиться через 5 секунд
+        setTimeout(() => {
+            showNotification('Попытка переподключения...', 'alert-warning');
+            // Создаем новое WebSocket соединение
+            const ws = new WebSocket(`ws://${window.location.host}/ws/spectator/${spectatorId}`);
+        }, 5000);
+    };
+</script>
+{% endblock %}
+{% endblock %}

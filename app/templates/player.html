@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Игровая комната - {{ player }}{% endblock %}
+{% block header %}Игровая комната{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Статус игры -->
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="text-center" id="status">
+                <div class="mt-2 text-sm text-gray-500">
+                    Ожидание начала игры...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопки выбора -->
+    <div id="choice-buttons" class="grid grid-cols-1 gap-4 sm:grid-cols-3" style="display: none;">
+        <button onclick="makeChoice('rock')"
+                class="flex items-center justify-center rounded-lg bg-gradient-to-b from-red-400 to-red-500 px-4 py-8 text-lg font-medium text-white shadow-md transition duration-200 hover:transform hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50">
+            Камень
+        </button>
+        <button onclick="makeChoice('paper')"
+                class="flex items-center justify-center rounded-lg bg-gradient-to-b from-blue-400 to-blue-500 px-4 py-8 text-lg font-medium text-white shadow-md transition duration-200 hover:transform hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
+            Бумага
+        </button>
+        <button onclick="makeChoice('scissors')"
+                class="flex items-center justify-center rounded-lg bg-gradient-to-b from-green-400 to-green-500 px-4 py-8 text-lg font-medium text-white shadow-md transition duration-200 hover:transform hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50">
+            Ножницы
+        </button>
+    </div>
+
+    <!-- Сообщение об ожидании -->
+    <div id="waiting-message"
+         class="animate-pulse rounded-lg bg-indigo-50 p-4 text-center text-sm font-medium text-indigo-700">
+        Ожидание начала игры админом...
+    </div>
+
+    <!-- История матчей -->
+    <div class="rounded-lg bg-white shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <h2 class="text-lg font-medium leading-6 text-gray-900">История матчей</h2>
+            <div class="mt-6 space-y-4" id="history"></div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    const ws = new WebSocket(`ws://${window.location.host}/ws/player/{{ player }}`);
+    const player = "{{ player }}";
+    let currentMatch = 0;
+
+    function makeChoice(choice) {
+        ws.send(JSON.stringify({
+            type: 'choice',
+            choice: choice
+        }));
+
+        document.getElementById('status').innerHTML = `
+            <div class="animate-pulse mt-2 text-sm text-gray-500">
+                Ожидание выбора противника...
+            </div>
+        `;
+
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => btn.disabled = true);
+    }
+
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'game_status') {
+            if (data.started) {
+                document.getElementById('waiting-message').style.display = 'none';
+                document.getElementById('choice-buttons').style.display = 'grid';
+                document.getElementById('status').innerHTML = `
+                    <div class="mt-2 text-sm text-gray-500">Сделайте ваш выбор</div>
+                `;
+            } else {
+                document.getElementById('waiting-message').style.display = 'block';
+                document.getElementById('choice-buttons').style.display = 'none';
+            }
+        }
+
+        if (data.type === 'result') {
+            currentMatch = data.match_number;
+            const result = data.result;
+
+            const historyDiv = document.getElementById('history');
+            const matchRecord = document.createElement('div');
+            matchRecord.className = 'rounded-lg bg-gray-50 p-4 transition duration-200 hover:bg-gray-100';
+            matchRecord.innerHTML = `
+                <div class="font-medium text-gray-900">Матч ${currentMatch}</div>
+                <div class="mt-1 text-sm text-gray-600">
+                    Игрок 1: ${result.player1_choice}<br>
+                    Игрок 2: ${result.player2_choice}<br>
+                    Победитель: ${result.winner === 'tie' ? 'Ничья' :
+                                (result.winner === player ? 'Вы победили!' : 'Противник победил')}
+                </div>
+            `;
+            historyDiv.insertBefore(matchRecord, historyDiv.firstChild);
+
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = false);
+
+            document.getElementById('status').innerHTML = `
+                <div class="mt-2 text-sm text-gray-500">Сделайте ваш выбор</div>
+            `;
+        }
+    };
+
+    ws.onerror = function(error) {
+        document.getElementById('status').innerHTML = `
+            <div class="mt-2 text-sm text-red-600">Ошибка соединения</div>
+        `;
+    };
+
+    ws.onclose = function() {
+        document.getElementById('status').innerHTML = `
+            <div class="mt-2 text-sm text-red-600">Соединение закрыто</div>
+        `;
+    };
+</script>
+{% endblock %}
+{% endblock %}
