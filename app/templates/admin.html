@@ -165,7 +165,7 @@
 
 {% block scripts %}
 <script>
-    const ws = new WebSocket(`ws://1xbet.sna.lol/ws/admin`);
+    const ws = new WebSocket(`wss://1xbet.sna.lol/ws/admin`);
     let gameStarted = false;
     let bettingEnabled = false;
 
@@ -396,7 +396,7 @@
         // Пытаемся переподключиться через 5 секунд
         setTimeout(() => {
             showNotification('Попытка переподключения...', 'warning');
-            const ws = new WebSocket(`ws://${window.location.host}/ws/admin`);
+            const ws = new WebSocket(`wss://${window.location.host}/ws/admin`);
         }, 5000);
     };
 </script>

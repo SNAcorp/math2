@@ -125,7 +125,7 @@
 {% block scripts %}
 <script>
     const spectatorId = 'spectator_' + Math.random().toString(36).substr(2, 9);
-    const ws = new WebSocket(`ws://${window.location.host}/ws/spectator/${spectatorId}`);
+    const ws = new WebSocket(`wss://${window.location.host}/ws/spectator/${spectatorId}`);
     let currentBalance = 5000;
     let bettingEnabled = false;
 
@@ -373,7 +373,7 @@
         setTimeout(() => {
             showNotification('Попытка переподключения...', 'alert-warning');
             // Создаем новое WebSocket соединение
-            const ws = new WebSocket(`ws://${window.location.host}/ws/spectator/${spectatorId}`);
+            const ws = new WebSocket(`wss://${window.location.host}/ws/spectator/${spectatorId}`);
         }, 5000);
     };
 </script>
