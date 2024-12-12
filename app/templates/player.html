@@ -55,7 +55,7 @@
     // Используем data-атрибут для передачи значения player
     document.body.dataset.player = "{{ player }}";
 
-    const ws = new WebSocket(`ws://1xbet.sna.lol/ws/player/{{ player }}`);
+    const ws = new WebSocket(`wss://1xbet.sna.lol/ws/player/{{ player }}`);
     let currentMatch = 0;
 
     function makeChoice(choice) {
