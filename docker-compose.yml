@@ -9,19 +9,19 @@ services:
     restart: unless-stopped
     volumes:
       - ./app:/app
-    ports:
-      - "80:80"
+#    ports:
+#      - "80:80"
     expose:
       - "80"
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.http.routers.bet.rule=Host(`1xbet.sna.lol`)"
-#      - "traefik.http.routers.bet.entrypoints=websecure"
-#      - "traefik.http.routers.bet.tls.certresolver=myresolver"
-#      - "traefik.http.routers.bet.priority=10"
-#    networks:
-#      - traefik_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bet.rule=Host(`1xbet.sna.lol`)"
+      - "traefik.http.routers.bet.entrypoints=websecure"
+      - "traefik.http.routers.bet.tls.certresolver=myresolver"
+      - "traefik.http.routers.bet.priority=10"
+    networks:
+      - traefik_network
 
-#networks:
-#  traefik_network:
-#    external: true
+networks:
+  traefik_network:
+    external: true
