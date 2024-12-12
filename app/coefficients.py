@@ -90,6 +90,6 @@ class CoefficientsCalculator:
         coef_p2 = round(1 / (p2_prob * margin_multiplier), 2)
 
         return {
-            'player1': coef_p1,
-            'player2': coef_p2
+            'player1': coef_p2,
+            'player2': coef_p1
         }
