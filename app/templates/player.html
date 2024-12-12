@@ -47,10 +47,15 @@
     </div>
 </div>
 
+
+{% endblock %}
+
 {% block scripts %}
 <script>
+    // Используем data-атрибут для передачи значения player
+    document.body.dataset.player = "{{ player }}";
+
     const ws = new WebSocket(`ws://${window.location.host}/ws/player/{{ player }}`);
-    const player = "{{ player }}";
     let currentMatch = 0;
 
     function makeChoice(choice) {
@@ -71,6 +76,7 @@
 
     ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
+        const currentPlayer = document.body.dataset.player;
 
         if (data.type === 'game_status') {
             if (data.started) {
@@ -98,7 +104,7 @@
                     Игрок 1: ${result.player1_choice}<br>
                     Игрок 2: ${result.player2_choice}<br>
                     Победитель: ${result.winner === 'tie' ? 'Ничья' :
-                                (result.winner === player ? 'Вы победили!' : 'Противник победил')}
+                                (result.winner === currentPlayer ? 'Вы победили!' : 'Противник победил')}
                 </div>
             `;
             historyDiv.insertBefore(matchRecord, historyDiv.firstChild);
@@ -124,5 +130,4 @@
         `;
     };
 </script>
-{% endblock %}
 {% endblock %}
