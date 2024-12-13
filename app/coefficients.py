@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 
 
 class CoefficientsCalculator:
-    def __init__(self, margin: float = 0.05):
+    def __init__(self, margin: float = 0.5):
         """
         Инициализация калькулятора коэффициентов
 
